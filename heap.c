@@ -5,6 +5,8 @@
 #include "heap.h"
 
 #define TAM_INICIAL 11
+#define REDIMENSION 2
+#define REDIMENSION_ABAJO 4
 
 //--------------------- FUNCION DE COMPARACION ---------------------//
 
@@ -12,61 +14,19 @@ typedef int (*cmp_func_t) (const void *a, const void *b);
 
 //--------------------- STRUCTS ---------------------//
 
-typedef struct heap heap_t{
+struct heap{
 	void** datos;
 	int cantidad;
 	int capacidad;
 	cmp_func_t cmp;
-}heap_t;
-
-//--------------------- HEAP SORT ---------------------
-
-void heapify(void *arreglo[], int capacidad, cmp_func_t cmp){
-	for (int i = capacidad; i > 0; i--){
-		downheap(arreglo, i - 1, cantidad, cmp);
-	}
-}
-
-void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp){
-
-}
+};
 
 //--------------------- FUNCIONES AUXILIARES ---------------------//
 
 void swap(void** arreglo, int a, int b){
 	void* aux = arreglo[a];
-	arreglo[a] = b;
+	arreglo[a] = arreglo[b];
 	arreglo[b] = aux;
-}
-
-void upheap(void** arreglo, int pos, cmp_func_t cmp){
-	if(pos == 0){
-		return;
-	}
-	padre = pos_padre(pos);
-	if(cmp(arreglo[padre], arreglo[pos]) > 0){
-		swap(arreglo, padre, pos);
-		upheap(vector, padre, cmp);
-	}
-}
-
-void downheap(void** arreglo, int capacidad, int pos, cmp_func_t cmp){
-	if(pos > tam){
-		return;
-	}
-	max = pos; // Padre
-	izq = pos_hijo_izq(pos);
-	der = pos_hijo_der(pos);
-	if(izq < capacidad && cmp(arreglo[izq], arreglo[max]) > 0){
-		max = izq;
-	}
-	if(der < capacidad && cmp(arreglo[der], arreglo[max]) > 0){
-		max = der;
-	}
-	if(max != pos){
-		swap(arreglo, pos, max);
-		downheap(arreglo, capacidad, max, cmp);
-	}
 }
 
 int pos_padre(int pos){
@@ -81,6 +41,36 @@ int pos_hijo_der(int pos){
 	return (pos * 2) + 2;
 }
 
+void upheap(void** arreglo, int pos, cmp_func_t cmp){
+	if(pos == 0){
+		return;
+	}
+	int padre = pos_padre(pos);
+	if(cmp(arreglo[padre], arreglo[pos]) > 0){
+		swap(arreglo, padre, pos);
+		upheap(arreglo, padre, cmp);
+	}
+}
+
+void downheap(void** arreglo, int capacidad, int pos, cmp_func_t cmp){
+	if(pos > capacidad){
+		return;
+	}
+	int max = pos; // Padre
+	int izq = pos_hijo_izq(pos);
+	int der = pos_hijo_der(pos);
+	if(izq < capacidad && cmp(arreglo[izq], arreglo[max]) > 0){
+		max = izq;
+	}
+	if(der < capacidad && cmp(arreglo[der], arreglo[max]) > 0){
+		max = der;
+	}
+	if(max != pos){
+		swap(arreglo, pos, max);
+		downheap(arreglo, capacidad, max, cmp);
+	}
+}
+
 void** copiar_datos(void* arreglo[], size_t n){
 	void** copia_arreglo = malloc(n * sizeof(void*));
 	if(!copia_arreglo){
@@ -90,6 +80,25 @@ void** copiar_datos(void* arreglo[], size_t n){
 		copia_arreglo[i] = arreglo[i];
 	}
 	return copia_arreglo;
+}
+
+bool redimensionar(heap_t* heap, int tam){
+	void** copia = copiar_datos(heap->datos, heap->cantidad);
+	heap->datos = copia;
+	heap->capacidad = heap->capacidad * tam;
+	return true;
+}
+
+//--------------------- HEAP SORT ---------------------
+
+void heapify(void *arreglo[], int cantidad, cmp_func_t cmp){
+	for (int i = cantidad; i > 0; i--){
+		downheap(arreglo, cantidad, i - 1, cmp);
+	}
+}
+
+void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp){
+	
 }
 
 //--------------------- PRIMITIVAS ---------------------//
@@ -127,7 +136,6 @@ void heap_destruir(heap_t *heap, void destruir_elemento(void *e)){
 	if(destruir_elemento){
 		while(i < cantidad){
 			destruir_elemento(heap->datos[i]);
-			i++;
 		}
 	}
 	free(heap->datos);
@@ -151,13 +159,19 @@ bool heap_encolar(heap_t *heap, void *elem){
 	if(!elem){
 		return false;
 	}
+	if(heap->capacidad == heap->cantidad){
+		bool redimension = redimensionar(heap, REDIMENSION);
+		if(redimension == false){
+			return false;
+		}
+	}
 	if(heap->cantidad == 0){
 		heap->datos[0] = elem;
 		heap->cantidad++;
 		return true;
 	}
 	void** datos = heap->datos;
-	datos[heap->cant] = elem;
+	datos[heap->cantidad] = elem;
 	upheap(datos, heap->cantidad, heap->cmp);
 	heap->cantidad++;
 	return true;
@@ -182,6 +196,9 @@ void *heap_desencolar(heap_t *heap){
 	datos[heap->cantidad - 1] = NULL;
 	downheap(datos, heap->cantidad, 0, heap->cmp);
 	heap->cantidad--;
+	if(heap->cantidad < (heap->capacidad) / REDIMENSION_ABAJO && heap->capacidad > TAM_INICIAL){
+		redimensionar(heap, heap->capacidad / REDIMENSION);
+	}
 	return dato;
 }
 
