@@ -197,7 +197,7 @@ void *heap_desencolar(heap_t *heap){
 	void* dato = datos[heap->cantidad - 1];
 	datos[heap->cantidad - 1] = NULL;
 	heap->cantidad--;
-	downheap(datos, heap->cantidad, 0, heap->cmp);
+	downheap(datos, 0, heap->cantidad, heap->cmp);
 	if(heap->cantidad < (heap->capacidad) / REDIMENSION_ABAJO && heap->capacidad > TAM_INICIAL){
 		redimensionar(heap, heap->capacidad / REDIMENSION);
 	}
