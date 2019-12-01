@@ -121,12 +121,13 @@ heap_t *heap_crear(cmp_func_t cmp){
 }
  
 heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp){
-	heap_t* heap = heap_crear(cmp);
+	heap_t* heap = malloc(sizeof(heap_t));
 	if(!heap){
 		return NULL;
 	}
 	void** copia_datos = copiar_datos(arreglo, (int)n);
 	if(!copia_datos){
+		free(heap);
 		return NULL;
 	}
 	heapify(copia_datos, (int)n, cmp);
