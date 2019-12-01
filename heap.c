@@ -4,7 +4,7 @@
 #include <string.h>
 #include "heap.h"
  
-#define TAM_INICIAL 11
+#define TAM_INICIAL 10000
 #define REDIMENSION 2
 #define REDIMENSION_ABAJO 4
  
@@ -139,6 +139,7 @@ void heap_destruir(heap_t *heap, void destruir_elemento(void *e)){
 	if(destruir_elemento){
 		while(i < cantidad){
 			destruir_elemento(heap->datos[i]);
+			i++;
 		}
 	}
 	free(heap->datos);
@@ -193,11 +194,11 @@ void *heap_desencolar(heap_t *heap){
 		return NULL;
 	}
 	void** datos = heap->datos;
+	void* dato = datos[0];
 	swap(datos, 0, heap->cantidad - 1);
-	void* dato = datos[heap->cantidad - 1];
 	datos[heap->cantidad - 1] = NULL;
 	heap->cantidad--;
-	downheap(datos, 0, heap->cantidad, heap->cmp);
+	downheap(datos, heap->cantidad, 0, heap->cmp);
 	if(heap->cantidad < ((heap->capacidad) / REDIMENSION_ABAJO) && heap->capacidad > TAM_INICIAL){
 		redimensionar(heap, heap->capacidad / REDIMENSION);
 	}
