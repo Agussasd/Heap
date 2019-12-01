@@ -4,7 +4,7 @@
 #include <string.h>
 #include "heap.h"
  
-#define TAM_INICIAL 10000
+#define TAM_INICIAL 11
 #define REDIMENSION 2
 #define REDIMENSION_ABAJO 4
  
@@ -79,9 +79,12 @@ void** copiar_datos(void* arreglo[], int n){
 }
  
 bool redimensionar(heap_t* heap, int tam){
-	void** copia = copiar_datos(heap->datos, heap->cantidad);
+	void** copia = realloc(heap->datos, (size_t)tam * sizeof(void*));
+	if(copia == NULL){
+		return false;
+	}
+	heap->capacidad = tam;
 	heap->datos = copia;
-	heap->capacidad = heap->capacidad * tam;
 	return true;
 }
  
@@ -164,7 +167,7 @@ bool heap_encolar(heap_t *heap, void *elem){
 		return false;
 	}
 	if(heap->capacidad == heap->cantidad){
-		bool redimension = redimensionar(heap, REDIMENSION);
+		bool redimension = redimensionar(heap, heap->capacidad * REDIMENSION);
 		if(redimension == false){
 			return false;
 		}
