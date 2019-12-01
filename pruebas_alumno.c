@@ -8,7 +8,15 @@
 int strcmp_heap(const void *a, const void *b) {
 	return strcmp(a, b);
 }
- 
+
+int intcmp_heap(const void *a, const void *b) {
+    const int *x = a;
+    const int *y = b;
+
+    if (*x < *y)
+        return -1;
+    return *x > *y;
+}
  
 void heap_vacio(){
 	printf("\n PRUEBAS HEAP VACIO \n");
@@ -46,7 +54,7 @@ void heap_encolar_desencolar(){
  
 void heap_volumen(){
 	printf("\n PRUEBAS HEAP VOLUMEN \n");
-	heap_t* heap = heap_crear(strcmp_heap);
+	heap_t* heap = heap_crear(intcmp_heap);
 	print_test("Se creo el heap", heap);
 	int arreglo[1000];
 	bool ok = true;
@@ -60,7 +68,7 @@ void heap_volumen(){
 		}  
 	}
 	print_test("Se encolaron 1000 elementos correctamente", ok);
-	for(int i = 999; i >= 0; i--){
+	for(int i = 999; i > 0; i--){
 		if(*(int*)heap_desencolar(heap) != i){
 			ok = false;
 		}
