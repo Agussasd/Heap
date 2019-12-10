@@ -91,7 +91,7 @@ bool redimensionar(heap_t* heap, int tam){
 //--------------------- HEAP SORT ---------------------
  
 void heapify(void *arreglo[], int cantidad, cmp_func_t cmp){
-	for(int i = cantidad; i > 0; i--){//emepzar desde la cantidad/2 , despues estan las hojas y no tiene sentido hacerle downheap
+	for(int i = cantidad/2; i > 0; i--){//emepzar desde la cantidad/2 , despues estan las hojas y no tiene sentido hacerle downheap
 		downheap(arreglo, cantidad, i - 1, cmp);
 	}
 }
@@ -113,6 +113,9 @@ heap_t *heap_crear(cmp_func_t cmp){
 		return NULL;
 	}
 	void** datos = malloc(sizeof(void*) * TAM_INICIAL); //no verifican si falla este malloc
+	if(!datos){
+		return NULL;
+	}	
 	heap->datos = datos;
 	heap->cantidad = 0;
 	heap->capacidad = TAM_INICIAL;
@@ -154,13 +157,7 @@ size_t heap_cantidad(const heap_t *heap){
 }
  
 bool heap_esta_vacio(const heap_t *heap){//return cantidad==0
-	if(heap->cantidad == 0){
-		return true;
-	}
-	else{
-		return false;
-	}
-}
+	return return cantidad==0;
  
 bool heap_encolar(heap_t *heap, void *elem){
 	if(!elem){
@@ -168,7 +165,7 @@ bool heap_encolar(heap_t *heap, void *elem){
 	}
 	if(heap->capacidad == heap->cantidad){
 		bool redimension = redimensionar(heap, heap->capacidad * REDIMENSION);
-		if(redimension == false){//if(!redimensionar(..))return false
+		if(!redimension){//if(!redimensionar(..))return false
 			return false;
 		}
 	}
@@ -185,7 +182,7 @@ bool heap_encolar(heap_t *heap, void *elem){
 }
  
 void *heap_ver_max(const heap_t *heap){
-	if(heap_esta_vacio(heap) == true){//no hace falta == true
+	if(heap_esta_vacio(heap)){//no hace falta == true
 		return NULL;
 	}
 	return heap->datos[0];
@@ -193,7 +190,7 @@ void *heap_ver_max(const heap_t *heap){
 }
  
 void *heap_desencolar(heap_t *heap){
-	if(heap_esta_vacio(heap) == true){//no hace falta == true
+	if(heap_esta_vacio(heap)){//no hace falta == true
 		return NULL;
 	}
 	void** datos = heap->datos; //que pasa si cant es 0?
