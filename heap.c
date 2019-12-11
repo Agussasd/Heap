@@ -67,8 +67,8 @@ void downheap(void** arreglo, int capacidad, int pos, cmp_func_t cmp){
 	}
 }
  
-void** copiar_datos(void* arreglo[], int n){ //porqe por 2, dejen que si es necesario se redimensione cuando se quiera agregar mas
-	void** copia_arreglo = malloc((size_t)n * 2 * sizeof(void*));//sin numeros magicos, definan una constante
+void** copiar_datos(void* arreglo[], int n){ 
+	void** copia_arreglo = malloc((size_t)n * sizeof(void*));
 	if(!copia_arreglo){
 		return NULL;
 	}
@@ -134,7 +134,7 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp){
 	heapify(copia_datos, (int)n, cmp);
 	heap->datos = copia_datos;
 	heap->cantidad = (int)n;
-	heap->capacidad = (int)n * 2;//porque *2
+	heap->capacidad = (int)n;
 	heap->cmp = cmp;
 	return heap;
 }
@@ -168,11 +168,6 @@ bool heap_encolar(heap_t *heap, void *elem){
 			return false;
 		}
 	}
-	if(heap->cantidad == 0){//no es un caso aparte 
-		heap->datos[0] = elem;
-		heap->cantidad++;
-		return true;
-	}
 	void** datos = heap->datos;
 	datos[heap->cantidad] = elem;
 	upheap(datos, heap->cantidad, heap->cmp);
@@ -192,15 +187,14 @@ void *heap_desencolar(heap_t *heap){
 	if(heap_esta_vacio(heap)){
 		return NULL;
 	}
-	void** datos = heap->datos; //que pasa si cant es 0? 
-	void* dato = datos[0];
-	swap(datos, 0, heap->cantidad - 1);
-	datos[heap->cantidad - 1] = NULL;
+	void* dato = heap->datos[0];
+	swap(heap->datos, 0, heap->cantidad - 1);
 	heap->cantidad--;
-	downheap(datos, heap->cantidad, 0, heap->cmp);
+	downheap(heap->datos, heap->cantidad, 0, heap->cmp);
 	if(heap->cantidad < ((heap->capacidad) / REDIMENSION_ABAJO) && heap->capacidad > TAM_INICIAL){
 		redimensionar(heap, heap->capacidad / REDIMENSION);
 	}
 	return dato;
 }
+
 //--------------------------------------------------------------//
