@@ -4,6 +4,7 @@
 #include "heap.h"
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
  
 int strcmp_heap(const void *a, const void *b) {
 	return strcmp(a, b);
@@ -52,13 +53,13 @@ void heap_encolar_desencolar(){
 	heap_destruir(heap, NULL);
 }
  
-void heap_volumen(){
-	printf("\n PRUEBAS HEAP VOLUMEN \n");
+void heap_volumen(int volumen){
+	printf("\n PRUEBAS HEAP VOLUMEN CON %d ELEMENTOS\n",volumen);
 	heap_t* heap = heap_crear(intcmp_heap);
 	print_test("Se creo el heap", heap);
-	int arreglo[1000];//reciban por parametro el volumen
+	int arreglo[volumen];
 	bool ok = true;
-	for(int i = 0 ; i < 1000 ; i++){
+	for(int i = 0 ; i < volumen ; i++){
 		arreglo[i] = i;
 		if(heap_encolar(heap, arreglo + i) == false){
 			ok = false;
@@ -67,8 +68,8 @@ void heap_volumen(){
 			ok = false;
 		}  
 	}
-	print_test("Se encolaron 1000 elementos correctamente", ok);
-	for(int i = 999; i > 0; i--){
+	print_test("Se encolaron una gran cantidad de elementos correctamente", ok);
+	for(int i = volumen - 1 ; i > 0; i--){
 		if(*(int*)heap_desencolar(heap) != i){
 			ok = false;
 		}
@@ -76,7 +77,7 @@ void heap_volumen(){
 			ok = false;
 		}    
 	}
-	print_test("Se desencolaron 1000 elementos correctamente", ok);
+	print_test("Se desencolaron una gran cantidad de elementos correctamente", ok);
 	heap_destruir(heap,NULL);
 }
  
@@ -110,66 +111,27 @@ void heapsort(){
 	}
 	print_test("Los numeros se ordenaron correctamente", ok);
 }
- 
-void pruebas_heap_alumno(){
-	heap_vacio();
-	heap_encolar_desencolar();
-	heap_arr();
-	heapsort();//prueben heapsort con volumen
-	heap_volumen();
-}
-	print_test("Heap desencolar devuelve el maximo", heap_desencolar(heap) == clave2);
-	heap_destruir(heap, NULL);
-}
- 
-void heap_volumen(){
-	printf("\n PRUEBAS HEAP VOLUMEN \n");
-	heap_t* heap = heap_crear(intcmp_heap);
-	print_test("Se creo el heap", heap);
-	int arreglo[1000];
-	bool ok = true;
-	for(int i = 0 ; i < 1000 ; i++){
-		arreglo[i] = i;
-		if(heap_encolar(heap, arreglo + i) == false){
-			ok = false;
-		}
-		if(*(int*)heap_ver_max(heap) != i){
-			ok = false;
-		}  
-	}
-	print_test("Se encolaron 1000 elementos correctamente", ok);
-	for(int i = 999; i > 0; i--){
-		if(*(int*)heap_desencolar(heap) != i){
-			ok = false;
-		}
-		if((*(int*)heap_ver_max(heap) != i - 1) && (i != 0)){
-			ok = false;
-		}    
-	}
-	print_test("Se desencolaron 1000 elementos correctamente", ok);
-	heap_destruir(heap,NULL);
-}
- 
-void heap_arr(){
-	printf("\n PRUEBAS HEAP ARR \n");
-	void* arreglo[7] = {"agua", "fuego", "aire", "tierra", "hielo", "metal", "rayo"};
-	heap_t *heap = heap_crear_arr(arreglo, 7, strcmp_heap);
-	print_test("Se creo el heap", heap);
-	print_test("Heap ver max es tierra", heap_ver_max(heap) == arreglo[3]);
-	print_test("Prueba heap la cantidad de elementos es 7", heap_cantidad(heap) == 7);
-	heap_destruir(heap, NULL);
-}
 
-void heapsort(){
-	printf("\n PRUEBAS HEAP SORT \n");
-	int uno = 1, dos = 2, once = 11, diez = 10, cien = 100, cuarenta = 40, cincuenta = 50, veinticinco = 25, nueve = 9, catorce = 14;
+void heapsort_volumen(int n){
+	printf("\n PRUEBAS HEAP SORT ORDENANDO UN ARREGLO DE N NUMEROS \n");
+	int* numeros = malloc(sizeof(int)*n);
+	for(int i = 0; i < n; i++){
+		numeros[n] = i;
+	}
+	void** arreglo = malloc(sizeof(int*)*n);
+	if(!arreglo){
+		printf("Hubo un problema en la creacion del arreglo para la prueba\n");
+		return;
+	}
+	for(int i = 0 ; i < n ; i++){
+		arreglo[i] = &numeros[n - i];
+	}
 	bool ok = true;
-	size_t longitud = 10;
-	void* arreglo[10] = {&uno, &dos, &once, &diez, &cien, &cuarenta, &cincuenta, &veinticinco, &nueve, &catorce};
-	heap_sort(arreglo, longitud, strcmp_heap);
+	size_t longitud = n;
+	heap_sort(arreglo, longitud, intcmp_heap);
 	int* anterior = arreglo[0];
 	int* actual;
-	for(int i = 0; i < 10; i++){
+	for(int i = 0; i < n; i++){
 		actual = arreglo[i]	;	
 		if(*actual < *anterior){			
 			ok = false;
@@ -178,7 +140,10 @@ void heapsort(){
 		}
 		anterior = actual;
 	}
-	print_test("Los numeros se ordenaron correctamente", ok);
+	print_test("Los n numeros se ordenaron correctamente", ok);
+	free(arreglo);
+	free(numeros);
+
 }
  
 void pruebas_heap_alumno(){
@@ -186,5 +151,6 @@ void pruebas_heap_alumno(){
 	heap_encolar_desencolar();
 	heap_arr();
 	heapsort();
-	heap_volumen();
+	heap_volumen(1000);
+	heapsort_volumen(1000);
 }
